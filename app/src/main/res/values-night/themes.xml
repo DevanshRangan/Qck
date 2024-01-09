@@ -1,0 +1,12 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Qck" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <item name="android:textColor">@color/white</item>
+        <item name="tint">@color/white</item>
+        <item name="drawableTint">@color/white</item>
+        <item name="android:fontFamily">@font/droid_sans</item>
+
+        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    </style>
+</resources>

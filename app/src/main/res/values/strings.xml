@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Qck</string>
+    <string name="auto_copy_disabled">Auto-Copy Disabled</string>
+    <string name="notify_after_copying">Notify after Copying</string>
+    <string name="auto_paste_otp">Auto-Paste OTP</string>
+    <string name="exception_list">Exception List</string>
+    <string name="rate_app">Rate App</string>
+    <string name="your_messages_stay_private_all_processing_happens_locally_on_your_device">Your messages stay private – all processing happens locally on your device.</string>
+    <string name="test_message">Test Message</string>
+    <string name="missing_permissions">Missing Permissions</string>
+    <string name="permission_denied">Permission Denied!</string>
+    <string name="permission_it_for_proper_functionality">Permission missing to use this feature! Please allow it for proper functionality.</string>
+    <string name="title_activity_exception">ExceptionActivity</string>
+    <string name="otp_copy_notifications">OTP Copy Notifications</string>
+    <string name="otp_channel_description">Shows notification of the copied OTPs and Sender\'s name</string>
+    <string name="auto_copy_enabled">Auto-Copy Enabled</string>
+    <string name="click_add_to_exception_from_notification_to_add_any_sender_to_the_exception">Click Add to Exception from Notification to add any sender to the exception</string>
+</resources>
