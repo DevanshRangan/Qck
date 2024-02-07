@@ -1,4 +1,4 @@
-package com.dr.qck.recievers
+package com.dr.qck.receivers
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -26,31 +26,39 @@ import javax.inject.Inject
 // TODO REMOVE ALL LOGS
 @SuppressLint("UnsafeProtectedBroadcastReceiver")
 @AndroidEntryPoint
-class Reader @Inject constructor(
-    private val datastoreRepository: DatastoreRepository,
-    private val exceptionDao: ExceptionDao,
-) : BroadcastReceiver() {
+class Reader : BroadcastReceiver() {
+
+    @Inject
+    lateinit var datastoreRepository: DatastoreRepository
+
+    @Inject
+    lateinit var exceptionDao: ExceptionDao
 
     override fun onReceive(context: Context, intent: Intent?) {
-        datastoreRepository.userPreferencesFlow
-        val bundle = intent?.extras
-        bundle?.let { b ->
-            val pdus = b["pdus"] as Array<*>
-            for (pdu in pdus) {
-                val message = SmsMessage.createFromPdu(pdu as ByteArray, bundle.getString("format"))
-                Log.d("Message>>>", message.displayMessageBody.toString())
-                if (message.messageClass != SmsMessage.MessageClass.CLASS_0) {
-                    extractOTP(message.displayMessageBody.lowercase())?.let { otp ->
-                        CoroutineScope(Dispatchers.IO).launch {
-                            if (exceptionDao.getExceptionList().find { address ->
-                                    address.senderName == message.originatingAddress
-                                } == null) {
-                                copyOTP(otp, context).also {
-                                    datastoreRepository.userPreferencesFlow.collect { prefs ->
-                                        if (prefs.notificationsEnabled) {
-                                            showNotification(
-                                                message.originatingAddress.toString(), otp, context
-                                            )
+        CoroutineScope(Dispatchers.IO).launch {
+            datastoreRepository.userPreferencesFlow.collect { prefs ->
+                if (prefs.isEnabled) {
+                    val bundle = intent?.extras
+                    bundle?.let { b ->
+                        val pdus = b["pdus"] as Array<*>
+                        for (pdu in pdus) {
+                            val message = SmsMessage.createFromPdu(
+                                pdu as ByteArray, bundle.getString("format")
+                            )
+                            Log.d("Message>>>", message.displayMessageBody.toString())
+                            if (message.messageClass != SmsMessage.MessageClass.CLASS_0) {
+                                extractOTP(message.displayMessageBody.lowercase())?.let { otp ->
+                                    if (exceptionDao.getExceptionList().find { address ->
+                                            address.senderName == message.originatingAddress
+                                        } == null) {
+                                        copyOTP(otp, context).also {
+                                            if (prefs.notificationsEnabled) {
+                                                showNotification(
+                                                    message.originatingAddress.toString(),
+                                                    otp,
+                                                    context
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -60,6 +68,7 @@ class Reader @Inject constructor(
                 }
             }
         }
+
     }
 
     private fun showNotification(from: String, otp: String, context: Context) {
@@ -71,8 +80,9 @@ class Reader @Inject constructor(
             putExtra(NOTIF_TYPE, EXCEPTION)
             putExtra(SENDER, from)
         }
-        val exceptionPendingIntent: PendingIntent =
-            PendingIntent.getBroadcast(context, notifID, exceptionIntent, PendingIntent.FLAG_MUTABLE)
+        val exceptionPendingIntent: PendingIntent = PendingIntent.getBroadcast(
+            context, notifID, exceptionIntent, PendingIntent.FLAG_MUTABLE
+        )
         val notificationsIntent = Intent(context, NotificationReceiver::class.java).apply {
             putExtra(NOTIF_ID, notifID)
             putExtra(NOTIF_TYPE, NOTIFICATION)

@@ -1,4 +1,4 @@
-package com.dr.qck.recievers
+package com.dr.qck.receivers
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver

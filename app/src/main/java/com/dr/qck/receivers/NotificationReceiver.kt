@@ -1,4 +1,4 @@
-package com.dr.qck.recievers
+package com.dr.qck.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
