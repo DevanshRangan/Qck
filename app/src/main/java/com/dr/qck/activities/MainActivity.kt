@@ -8,7 +8,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -56,13 +55,14 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         if (isThemeSwitched.first) {
             binding.themeSwitchImage.setImageBitmap(QckApplication.snapshot)
             val isDark = isThemeSwitched.second != ThemeType.LIGHT.name
             if (!isDark) {
+                binding.mainLayout.alpha = 0F
                 binding.mainLayout.elevation = 20F
             }
-            setContentView(binding.root)
 //            binding.themeSwitchImage.animate().alpha(0F).setDuration(200).start()
             CoroutineScope(Dispatchers.Main).launch {
                 val cx = binding.themeSwitchImage.width / 2
@@ -77,9 +77,15 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
                 )
                 anim.addListener(object : AnimatorListenerAdapter() {
 
+                    override fun onAnimationStart(animation: Animator) {
+                        super.onAnimationStart(animation)
+                        binding.mainLayout.alpha = 1F
+                    }
+
                     override fun onAnimationEnd(animation: Animator) {
                         super.onAnimationEnd(animation)
                         binding.themeSwitchImage.visibility = View.INVISIBLE
+                        binding.themeSwitchImage.setImageBitmap(null)
                         if (!isDark) binding.mainLayout.visibility = VISIBLE
                         binding.themeButton.setOnClickListener(this@MainActivity)
                     }
@@ -106,6 +112,11 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
         initViews()
         observeData()
         initOnClick()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        window.setBackgroundDrawableResource(R.color.red)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
