@@ -10,8 +10,7 @@ import androidx.core.view.children
 import com.dr.qck.R
 
 object AndroidUtils {
-    fun viewToBitmap(view: View, theme: String): Bitmap {
-        view as ViewGroup
+    fun viewToBitmap(view: View): Bitmap {
         val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         view.draw(canvas)

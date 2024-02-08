@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.core.app.NotificationManagerCompat
+import com.dr.qck.application.QckApplication
 import com.dr.qck.database.ExceptionDao
 import com.dr.qck.database.ExceptionMessage
 import com.dr.qck.datastore.DatastoreRepository
@@ -16,7 +17,13 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NotificationReceiver : BroadcastReceiver() {
+
+    private lateinit var exceptionDao: ExceptionDao
+    private lateinit var prefsRepo: DatastoreRepository
     override fun onReceive(context: Context, intent: Intent) {
+        val app = context.applicationContext as QckApplication
+        exceptionDao = app.dao
+        prefsRepo = app.repo
         val type = intent.getStringExtra(Reader.NOTIF_TYPE)
         val sender = intent.getStringExtra(Reader.SENDER)
         val id = intent.getIntExtra(Reader.NOTIF_ID, 0)
@@ -42,6 +49,9 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     private fun addToException(context: Context, senderName: String) {
+        exceptionDao.getExceptionList().forEach {
+            if (senderName == it.senderName) return
+        }
         exceptionDao.addToException(
             ExceptionMessage(
                 System.currentTimeMillis(), senderName
@@ -50,10 +60,5 @@ class NotificationReceiver : BroadcastReceiver() {
         CoroutineScope(Dispatchers.Main).launch {
             Toast.makeText(context, "Added to Exception!", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    companion object {
-        lateinit var exceptionDao: ExceptionDao
-        lateinit var prefsRepo: DatastoreRepository
     }
 }

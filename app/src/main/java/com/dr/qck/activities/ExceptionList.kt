@@ -29,6 +29,11 @@ class ExceptionList : AppCompatActivity() {
         setContentView(binding.root)
         getExceptions()
         observeData()
+        initOnClick()
+    }
+
+    private fun initOnClick() {
+        binding.backArrow.setOnClickListener { finish() }
     }
 
     private fun observeData() {

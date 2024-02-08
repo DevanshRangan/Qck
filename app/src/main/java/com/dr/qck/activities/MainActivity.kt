@@ -12,7 +12,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.View.VISIBLE
@@ -60,10 +59,10 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
-        if (isThemeSwitched.first) {
+        isThemeSwitched.second?.let {
             binding.themeSwitchImage.setImageBitmap(QckApplication.snapshot)
             val isDark = isThemeSwitched.second != ThemeType.LIGHT.name
-            if (!isDark) {
+            if (isDark) {
                 binding.mainLayout.alpha = 0F
                 binding.mainLayout.elevation = 20F
             }
@@ -84,11 +83,11 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
                 ).coerceAtLeast(sqrt((pos[0] * pos[0] + pos[1] * pos[1]).toDouble())).toFloat()
                 finalRadius = finalRadius.coerceAtLeast(finalRadius2)
                 val anim = ViewAnimationUtils.createCircularReveal(
-                    if (isDark) binding.themeSwitchImage else binding.mainLayout,
+                    if (!isDark) binding.themeSwitchImage else binding.mainLayout,
                     pos[0],
                     pos[1],
-                    if (isDark) finalRadius else 0F,
-                    if (isDark) 0F else finalRadius
+                    if (!isDark) finalRadius else 0F,
+                    if (!isDark) 0F else finalRadius
                 )
                 anim.addListener(object : AnimatorListenerAdapter() {
 
@@ -102,15 +101,14 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
                         binding.themeSwitchImage.visibility = View.INVISIBLE
                         binding.themeSwitchImage.setImageDrawable(null)
                         QckApplication.snapshot = null
-                        if (!isDark) binding.mainLayout.visibility = VISIBLE
+                        if (isDark) binding.mainLayout.visibility = VISIBLE
                         binding.themeButton.setOnClickListener(this@MainActivity)
                     }
                 })
                 anim.setDuration(400)
                 anim.start()
             }
-        } else {
-            setContentView(binding.root)
+        } ?: run {
             binding.themeButton.setOnClickListener(this@MainActivity)
         }
         val content: View = findViewById(android.R.id.content)
@@ -133,7 +131,9 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun observeData() {
         applicationViewModel.userPreferences.observe(this) { prefs ->
-            Log.d("Datastore", prefs.toString())
+            if (!isThemeSwitched.first) {
+                changeTheme(prefs.theme)
+            }
             permissionCount = prefs.permissionRequestCount
             notifPermissionCount = prefs.notificationPermissionCount
             when {
@@ -152,10 +152,6 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
                     binding.themeButton.setImageDrawable(getDrawable(R.drawable.day_ic))
                 }
             }
-            if (!isThemeSwitched.first) {
-                changeTheme(prefs.theme)
-            }
-
         }
     }
 
@@ -197,10 +193,10 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
 
     private fun changeTheme(theme: String, booted: Boolean = true) {
         if (!booted) {
-            val bm = (AndroidUtils.viewToBitmap(binding.root, theme))
+            val bm = (AndroidUtils.viewToBitmap(binding.root))
             QckApplication.snapshot = bm
         }
-        isThemeSwitched = Pair(true, theme)
+        isThemeSwitched = Pair(true, if (booted) null else theme)
         when (theme) {
             ThemeType.DARK.name -> {
                 applicationViewModel.updateUserPreferences(THEME, ThemeType.DARK.name)

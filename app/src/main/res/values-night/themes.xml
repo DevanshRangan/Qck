@@ -9,7 +9,6 @@
         <item name="lottie_colorFilter">@color/white</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
         <item name="statusBarBackground">@color/transparent</item>
         <item name="containerBackground">@color/black</item>
     </style>

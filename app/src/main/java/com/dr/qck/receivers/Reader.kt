@@ -1,7 +1,6 @@
 package com.dr.qck.receivers
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.ClipData
@@ -15,30 +14,25 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.dr.qck.R
-import com.dr.qck.database.ExceptionDao
-import com.dr.qck.datastore.DatastoreRepository
+import com.dr.qck.application.QckApplication
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-// TODO REMOVE ALL LOGS
-@SuppressLint("UnsafeProtectedBroadcastReceiver")
+@Suppress("DEPRECATION")
 @AndroidEntryPoint
 class Reader : BroadcastReceiver() {
-
-    @Inject
-    lateinit var datastoreRepository: DatastoreRepository
-
-    @Inject
-    lateinit var exceptionDao: ExceptionDao
-
-    override fun onReceive(context: Context, intent: Intent?) {
-        CoroutineScope(Dispatchers.IO).launch {
-            datastoreRepository.userPreferencesFlow.collect { prefs ->
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == "android.provider.Telephony.SMS_RECEIVED") {
+            val app = context.applicationContext as QckApplication
+            val exceptionDao = app.dao
+            val datastoreRepository = app.repo
+            CoroutineScope(Dispatchers.IO).launch {
+                val prefs = datastoreRepository.userPreferencesFlow.first()
                 if (prefs.isEnabled) {
-                    val bundle = intent?.extras
+                    val bundle = intent.extras
                     bundle?.let { b ->
                         val pdus = b["pdus"] as Array<*>
                         for (pdu in pdus) {
@@ -68,7 +62,6 @@ class Reader : BroadcastReceiver() {
                 }
             }
         }
-
     }
 
     private fun showNotification(from: String, otp: String, context: Context) {
@@ -104,8 +97,6 @@ class Reader : BroadcastReceiver() {
         ) {
             return
         }
-        NotificationReceiver.prefsRepo = datastoreRepository
-        NotificationReceiver.exceptionDao = exceptionDao
         NotificationManagerCompat.from(context).notify(notifID, builder)
     }
 

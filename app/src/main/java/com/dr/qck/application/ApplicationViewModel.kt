@@ -19,7 +19,6 @@ class ApplicationViewModel @Inject constructor(
     application: Application, private val datastoreRepository: DatastoreRepository
 ) : AndroidViewModel(application) {
 
-
     private val _userPreferences: MutableLiveData<UserPreferences> = MutableLiveData()
     val userPreferences: LiveData<UserPreferences> = _userPreferences
 
