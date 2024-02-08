@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme. -->
+
     <style name="Base.Theme.Qck" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="android:textColor">@color/black</item>
@@ -13,10 +14,4 @@
         <item name="containerBackground">@color/white</item>
         <item name="lottie_colorFilter">@color/black</item>
     </style>
-
-    <style name="ContainerStyle" parent="Base.Theme.Qck">
-        <item name="android:background">?attr/containerBackground</item>
-    </style>
-
-    <style name="Theme.Qck" parent="Base.Theme.Qck" />
 </resources>

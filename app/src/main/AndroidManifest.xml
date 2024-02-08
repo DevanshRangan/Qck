@@ -14,7 +14,6 @@
     <application
         android:name=".application.QckApplication"
         android:allowBackup="true"
-
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -38,8 +37,8 @@
 
         <receiver
             android:name=".receivers.Reader"
-            android:exported="true">
-
+            android:exported="false"
+            android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>

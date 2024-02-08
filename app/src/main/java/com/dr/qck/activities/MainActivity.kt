@@ -14,11 +14,11 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.view.View.INVISIBLE
 import android.view.View.OnClickListener
 import android.view.View.VISIBLE
 import android.view.ViewAnimationUtils
 import android.view.ViewTreeObserver
+import android.view.WindowManager
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -43,7 +43,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.math.hypot
+import kotlin.math.sqrt
 
 
 @AndroidEntryPoint
@@ -56,6 +56,10 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
         if (isThemeSwitched.first) {
             binding.themeSwitchImage.setImageBitmap(QckApplication.snapshot)
             val isDark = isThemeSwitched.second != ThemeType.LIGHT.name
@@ -65,15 +69,26 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
             }
 //            binding.themeSwitchImage.animate().alpha(0F).setDuration(200).start()
             CoroutineScope(Dispatchers.Main).launch {
-                val cx = binding.themeSwitchImage.width / 2
-                val cy = binding.themeSwitchImage.height / 2
-                val initialRadius = hypot(cx.toDouble(), cy.toDouble()).toFloat()
+                val w = resources.displayMetrics.widthPixels
+                val h = resources.displayMetrics.heightPixels
+                val pos = intArrayOf(0, 0)
+                var finalRadius = sqrt(
+                    ((w - pos[0]) * (w - pos[0]) + (h - pos[1]) * (h - pos[1])).toDouble()
+                ).coerceAtLeast(
+                    sqrt(
+                        (pos[0] * pos[0] + (h - pos[1]) * (h - pos[1])).toDouble()
+                    )
+                ).toFloat()
+                val finalRadius2 = sqrt(
+                    ((w - pos[0]) * (w - pos[0]) + pos[1] * pos[1]).toDouble()
+                ).coerceAtLeast(sqrt((pos[0] * pos[0] + pos[1] * pos[1]).toDouble())).toFloat()
+                finalRadius = finalRadius.coerceAtLeast(finalRadius2)
                 val anim = ViewAnimationUtils.createCircularReveal(
                     if (isDark) binding.themeSwitchImage else binding.mainLayout,
-                    cx,
-                    cy,
-                    if (isDark) initialRadius else 0f,
-                    if (isDark) 0F else initialRadius
+                    pos[0],
+                    pos[1],
+                    if (isDark) finalRadius else 0F,
+                    if (isDark) 0F else finalRadius
                 )
                 anim.addListener(object : AnimatorListenerAdapter() {
 
@@ -85,12 +100,13 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
                     override fun onAnimationEnd(animation: Animator) {
                         super.onAnimationEnd(animation)
                         binding.themeSwitchImage.visibility = View.INVISIBLE
-                        binding.themeSwitchImage.setImageBitmap(null)
+                        binding.themeSwitchImage.setImageDrawable(null)
+                        QckApplication.snapshot = null
                         if (!isDark) binding.mainLayout.visibility = VISIBLE
                         binding.themeButton.setOnClickListener(this@MainActivity)
                     }
                 })
-                anim.setDuration(500)
+                anim.setDuration(400)
                 anim.start()
             }
         } else {
@@ -100,7 +116,7 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
         val content: View = findViewById(android.R.id.content)
         content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
-                return if (applicationViewModel.userPreferences.value != null) {
+                return if (isThemeSwitched.first) {
                     content.viewTreeObserver.removeOnPreDrawListener(this)
                     binding.mainLayout.visibility = VISIBLE
                     true
@@ -112,11 +128,6 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
         initViews()
         observeData()
         initOnClick()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        window.setBackgroundDrawableResource(R.color.red)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

@@ -2,6 +2,7 @@ package com.dr.qck.activities
 
 import android.os.Bundle
 import android.view.View.VISIBLE
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,10 @@ class ExceptionList : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
         binding = ActivityExceptionListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         getExceptions()

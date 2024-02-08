@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme. -->
+
     <style name="Base.Theme.Qck" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <item name="android:textColor">@color/white</item>
@@ -12,9 +13,5 @@
         <item name="android:windowLightNavigationBar">false</item>
         <item name="statusBarBackground">@color/transparent</item>
         <item name="containerBackground">@color/black</item>
-    </style>
-
-    <style name="ContainerStyle" parent="Base.Theme.Qck">
-        <item name="android:background">?attr/containerBackground</item>
     </style>
 </resources>

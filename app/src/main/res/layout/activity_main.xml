@@ -36,8 +36,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.05"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintVertical_bias="0"
             app:layout_constraintTop_toTopOf="@+id/logo_image_view"
+            app:layout_constraintVertical_bias="0"
             app:layout_constraintWidth_percent="0.08" />
 
         <ImageView
@@ -141,14 +141,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.95"
+            app:layout_constraintVertical_bias="0.9"
             app:layout_constraintWidth_percent="0.8" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
-        app:tint="@null"
         android:id="@+id/theme_switch_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:tint="@null" />
 </androidx.constraintlayout.widget.ConstraintLayout>
