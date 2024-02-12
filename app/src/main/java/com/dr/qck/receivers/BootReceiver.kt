@@ -7,7 +7,6 @@ import android.content.Intent
 import com.dr.qck.service.LifecycleService
 
 class BootReceiver : BroadcastReceiver() {
-    @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.startService(Intent(context, LifecycleService::class.java))
     }

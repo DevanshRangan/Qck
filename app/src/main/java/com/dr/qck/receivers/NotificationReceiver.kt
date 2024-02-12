@@ -10,6 +10,7 @@ import com.dr.qck.database.ExceptionDao
 import com.dr.qck.database.ExceptionMessage
 import com.dr.qck.datastore.DatastoreRepository
 import com.dr.qck.utils.Constants
+import com.dr.qck.utils.plain
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +51,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
     private fun addToException(context: Context, senderName: String) {
         exceptionDao.getExceptionList().forEach {
-            if (senderName == it.senderName) return
+            if (senderName.plain() == it.senderName) return
         }
         exceptionDao.addToException(
             ExceptionMessage(

@@ -15,4 +15,11 @@
     <string name="otp_channel_description">Shows notification of the copied OTPs and Sender\'s name</string>
     <string name="auto_copy_enabled">Auto-Copy Enabled</string>
     <string name="click_add_to_exception_from_notification_to_add_any_sender_to_the_exception">Click Add to Exception from Notification to add any sender to the exception</string>
+    <string name="add_new_exception">Add New Exception</string>
+    <string name="name_number_of_the_sender">Name/Number of the Sender</string>
+    <string name="added_successfully">Added Successfully!</string>
+    <string name="cancel">Cancel</string>
+    <string name="add">Add\n</string>
+    <string name="please_enter_sender_s_name_or_number">Please Enter Sender\'s Name or Number</string>
+    <string name="empty_sender">Sender\'s name/number cannot be empty!</string>
 </resources>

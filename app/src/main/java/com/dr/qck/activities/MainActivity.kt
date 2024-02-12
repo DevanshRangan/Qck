@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.dr.qck.R
@@ -42,7 +43,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.math.sqrt
+import kotlin.math.hypot
 
 
 @AndroidEntryPoint
@@ -68,20 +69,13 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
             }
 //            binding.themeSwitchImage.animate().alpha(0F).setDuration(200).start()
             CoroutineScope(Dispatchers.Main).launch {
-                val w = resources.displayMetrics.widthPixels
-                val h = resources.displayMetrics.heightPixels
-                val pos = intArrayOf(0, 0)
-                var finalRadius = sqrt(
-                    ((w - pos[0]) * (w - pos[0]) + (h - pos[1]) * (h - pos[1])).toDouble()
-                ).coerceAtLeast(
-                    sqrt(
-                        (pos[0] * pos[0] + (h - pos[1]) * (h - pos[1])).toDouble()
-                    )
-                ).toFloat()
-                val finalRadius2 = sqrt(
-                    ((w - pos[0]) * (w - pos[0]) + pos[1] * pos[1]).toDouble()
-                ).coerceAtLeast(sqrt((pos[0] * pos[0] + pos[1] * pos[1]).toDouble())).toFloat()
-                finalRadius = finalRadius.coerceAtLeast(finalRadius2)
+                val width = binding.root.width
+                val height = binding.root.height - binding.themeButton.pivotY
+                val finalRadius = hypot(width.toFloat(), height)
+                val pos = IntArray(2)
+                binding.themeButton.getLocationInWindow(pos)
+                pos[0] += binding.themeButton.width / 2
+                pos[1] += binding.themeButton.height / 2
                 val anim = ViewAnimationUtils.createCircularReveal(
                     if (!isDark) binding.themeSwitchImage else binding.mainLayout,
                     pos[0],
@@ -105,7 +99,7 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
                         binding.themeButton.setOnClickListener(this@MainActivity)
                     }
                 })
-                anim.setDuration(400)
+                anim.setDuration(500)
                 anim.start()
             }
         } ?: run {
@@ -128,30 +122,33 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
         initOnClick()
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     private fun observeData() {
         applicationViewModel.userPreferences.observe(this) { prefs ->
             if (!isThemeSwitched.first) {
                 changeTheme(prefs.theme)
             }
-            permissionCount = prefs.permissionRequestCount
-            notifPermissionCount = prefs.notificationPermissionCount
-            when {
-                prefs.isEnabled && checkSmsPermission() -> {
-                    binding.autoCopySwitch.isChecked = true
-                }
-            }
-            binding.notificationSwitch.isChecked =
-                prefs.notificationsEnabled && checkNotificationPermission()
             when (prefs.theme) {
                 ThemeType.LIGHT.name -> {
-                    binding.themeButton.setImageDrawable(getDrawable(R.drawable.night_ic))
+                    binding.themeButton.setImageDrawable(
+                        AppCompatResources.getDrawable(
+                            this, R.drawable.night_ic
+                        )
+                    )
                 }
 
                 else -> {
-                    binding.themeButton.setImageDrawable(getDrawable(R.drawable.day_ic))
+                    binding.themeButton.setImageDrawable(
+                        AppCompatResources.getDrawable(
+                            this, R.drawable.day_ic
+                        )
+                    )
                 }
             }
+            permissionCount = prefs.permissionRequestCount
+            notifPermissionCount = prefs.notificationPermissionCount
+            binding.autoCopySwitch.isChecked = prefs.isEnabled && checkSmsPermission()
+            binding.notificationSwitch.isChecked =
+                prefs.notificationsEnabled && checkNotificationPermission()
         }
     }
 
@@ -217,6 +214,7 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
         binding.notificationSwitch.setOnClickListener(this)
         binding.autoCopySwitch.setOnCheckedChangeListener(this)
         binding.exceptionButton.setOnClickListener(this)
+        binding.rateAppButton.setOnClickListener(this)
     }
 
     private fun requestSmsPermission() {
@@ -345,6 +343,25 @@ class MainActivity : AppCompatActivity(), OnClickListener, CompoundButton.OnChec
             binding.exceptionButton.id -> {
                 startActivity(Intent(this, ExceptionList::class.java))
             }
+
+            binding.rateAppButton.id -> {
+                redirectToPlayStore()
+            }
+        }
+    }
+
+    private fun redirectToPlayStore() {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        } catch (e: android.content.ActivityNotFoundException) {
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+            )
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
         }
     }
 

@@ -14,7 +14,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.dr.qck.R
+import com.dr.qck.activities.MainActivity
 import com.dr.qck.application.QckApplication
+import com.dr.qck.utils.plain
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +45,7 @@ class Reader : BroadcastReceiver() {
                             if (message.messageClass != SmsMessage.MessageClass.CLASS_0) {
                                 extractOTP(message.displayMessageBody.lowercase())?.let { otp ->
                                     if (exceptionDao.getExceptionList().find { address ->
-                                            address.senderName == message.originatingAddress
+                                            address.senderName.plain().equals(message.originatingAddress, true)
                                         } == null) {
                                         copyOTP(otp, context).also {
                                             if (prefs.notificationsEnabled) {
@@ -83,13 +85,17 @@ class Reader : BroadcastReceiver() {
         val notifPendingIntent: PendingIntent = PendingIntent.getBroadcast(
             context, notifID, notificationsIntent, PendingIntent.FLAG_IMMUTABLE
         )
+        val contentIntent = Intent(context, MainActivity::class.java)
+        val contentPendingIntent =
+            PendingIntent.getActivity(context, 0, contentIntent, PendingIntent.FLAG_IMMUTABLE)
         val builder =
             NotificationCompat.Builder(context, "1.0").setContentTitle("OTP Detected from $from")
                 .setSmallIcon(R.drawable.ic_notification_ic)
                 .setContentText("$otp was copied to device's clipboard")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(contentPendingIntent)
                 .addAction(R.drawable.forbidden_ic, "Add to Exception", exceptionPendingIntent)
-                .addAction(R.drawable.bell_ic, "Turn off Notifications", notifPendingIntent).build()
+                .addAction(R.drawable.bell_ic, "Disable Notifications", notifPendingIntent).build()
 
         if (ActivityCompat.checkSelfPermission(
                 context, Manifest.permission.POST_NOTIFICATIONS

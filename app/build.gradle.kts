@@ -14,8 +14,8 @@ android {
         applicationId = "com.dr.qck"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.0.1"
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -83,8 +83,5 @@ dependencies {
 
     //splash screen
     implementation("androidx.core:core-splashscreen:1.0.1")
-
-    // lottie
-    implementation ("com.airbnb.android:lottie:6.3.0")
 
 }

@@ -23,7 +23,7 @@ class QckApplication : Application() {
 
     companion object {
         var isThemeSwitched = Pair<Boolean, String?>(false, null)
-        private lateinit var instance: QckApplication
+        lateinit var instance: QckApplication
         var snapshot: Bitmap? = null
     }
 }

@@ -10,7 +10,6 @@
         <item name="statusBarBackground">@color/transparent</item>
         <item name="android:fontFamily">@font/droid_sans</item>
         <item name="containerBackground">@color/white</item>
-        <item name="lottie_colorFilter">@color/black</item>
     </style>
 
     <style name="ContainerStyle" parent="Base.Theme.Qck">
